@@ -9,14 +9,10 @@ interface UseTodoStorageReturn {
 }
 
 export function useTodoStorage(): UseTodoStorageReturn {
-  const [todos, setTodos] = useState<Todo[]>([]);
-
-  useEffect(() => {
+  const [todos, setTodos] = useState<Todo[]>(() => {
     const savedTodos = localStorage.getItem("todos");
-    if (savedTodos) {
-      setTodos(JSON.parse(savedTodos));
-    }
-  }, []);
+    return savedTodos ? JSON.parse(savedTodos) : [];
+  });
 
   useEffect(() => {
     localStorage.setItem("todos", JSON.stringify(todos));
@@ -31,19 +27,19 @@ export function useTodoStorage(): UseTodoStorageReturn {
       completed: false,
     };
 
-    setTodos([...todos, newTodo]);
+    setTodos((prevTodos) => [...prevTodos, newTodo]);
   };
 
   const toggleTodo = (id: number) => {
-    setTodos(
-      todos.map((todo) =>
+    setTodos((prevTodos) =>
+      prevTodos.map((todo) =>
         todo.id === id ? { ...todo, completed: !todo.completed } : todo
       )
     );
   };
 
   const deleteTodo = (id: number) => {
-    setTodos(todos.filter((todo) => todo.id !== id));
+    setTodos((prevTodos) => prevTodos.filter((todo) => todo.id !== id));
   };
 
   return { todos, addTodo, toggleTodo, deleteTodo };
